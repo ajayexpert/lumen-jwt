@@ -12,5 +12,27 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+
+  return 'Lumen with JWT token based app - '.$router->app->version();
+
+});
+
+
+
+$router->post('register', 'RegisterController@register');
+
+$router->post('login', 'AuthController@authenticate');
+
+
+// protect route must be in this group
+$router->group(['middleware' => 'jwt.auth'], function() use ($router) {
+
+  // after auth all auth routes will be hare  
+
+
+  $router->post('user', function() use ($router) {
+    return Auth::user();
+  });
+
+
 });
