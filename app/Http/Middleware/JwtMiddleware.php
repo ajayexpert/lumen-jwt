@@ -22,8 +22,6 @@ class JwtMiddleware
     {
         $token = $request->bearerToken();
         
-        // $token = $request->get('token');
-        
         if(!$token) {
             // Unauthorized response if token not there
             return response()->json([
@@ -45,11 +43,8 @@ class JwtMiddleware
 
         $user = User::find($credentials->sub);
         
-        // Now let's put the user in the request class so that you can grab it from there
-        $request->auth = $user;
-
-        app()['auth']->viaRequest('api', function ($request) {
-            return $request->auth;
+        app()['auth']->viaRequest('api', function ($request) use ($user) {
+            return $user;
         });
         
         return $next($request);

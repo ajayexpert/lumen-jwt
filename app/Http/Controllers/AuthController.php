@@ -17,6 +17,10 @@ class AuthController extends Controller
      * @var \Illuminate\Http\Request
      */
     private $request;
+    private $issue_at;
+    private $expire_at;
+
+
     /**
      * Create a new controller instance.
      *
@@ -33,11 +37,15 @@ class AuthController extends Controller
      * @return string
      */
     protected function jwt(User $user) {
+
+        $this->issue_at = time();
+        $this->expire_at = $this->issue_at + env('JWT_TOKEN_EXP');
+        
         $payload = [
             'iss' => "lumen-jwt", // Issuer of the token
             'sub' => $user->id, // Subject of the token
-            'iat' => time(), // Time when JWT was issued. 
-            'exp' => time() + 60*60 // Expiration time
+            'iat' => $this->issue_at, // Time when JWT was issued. 
+            'exp' => $this->expire_at // Expiration time
         ];
         
         // As you can see we are passing `JWT_SECRET` as the second parameter that will 
@@ -76,7 +84,8 @@ class AuthController extends Controller
         if (Hash::check($this->request->input('password'), $user->password)) {
 
             return response()->json([
-                'token' => $this->jwt($user)
+                'token' => $this->jwt($user),
+                'expire_at' => date("Y-m-d H:i:s",$this->expire_at)
             ], 200);
 
         }
